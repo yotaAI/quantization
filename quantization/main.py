@@ -18,5 +18,6 @@ val_loader = torch.utils.data.DataLoader(val_dataset,batch_size=256,shuffle=Fals
 
 model_fp32 = models.resnet50(pretrained=True).eval()
 
-model_q = quantize_resnet(model_fp32)
+model_q = quantize_resnet(model_fp32,bits=2,signed=False)
+
 result = evaluate_imagenet(model_q, val_loader, device=device)

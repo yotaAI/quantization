@@ -30,7 +30,8 @@ In this repo you can find the different type of quantization approach where I ha
 | Model |  Type     | Top-1                | Top-5 |
 | :-------- | :------- | :------------------------- |:------------------------- |
 | Resnet-50 | FP32 | 76.16 |92.88 |
-| Resnet-50 | Int-8 Quant [ Linear, Conv2D ] | 75.56 |92.81 |
+| Resnet-50 | Int-8 Signed Quant [ Linear, Conv2D ] | 75.56 |92.81 |
+| Resnet-50 | Int-4 Signed Quant [ Linear, Conv2D ] | 0.12 |0.51 |
 
 
 ---
