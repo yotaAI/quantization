@@ -7,19 +7,26 @@ from torchvision import models
 
 
 def quantize_symmetric(tensor: torch.Tensor,bits=8,signed=True):
-    # per-tensor symmetric quantization (zero_point = 0)
-
-    if signed : 
-        qmin = -2**(bits-1)
-        qmax = 2**(bits-1) - 1
+    # Choose range
+    if signed:
+        qmin = -2 ** (bits - 1)
+        qmax = 2 ** (bits - 1) - 1
+        dtype = torch.int8 if bits == 8 else torch.int32
     else:
         qmin = 0
-        qmax = 2**bits - 1
+        qmax = 2 ** bits - 1
+        dtype = torch.uint8 if bits == 8 else torch.int32
     
+    # Avoid divide by zero
     max_val = tensor.abs().max()
-    scale = max_val / qmax
-    q = torch.round(tensor / scale).clamp(qmin, qmax).to(int)
-    return q, scale
+    if max_val == 0:
+        scale = 1.0
+        q_tensor = torch.zeros_like(tensor, dtype=dtype)
+    else:
+        scale = max_val / qmax
+        q_tensor = torch.round(tensor / scale).clamp(qmin, qmax).to(dtype)
+
+    return q_tensor, scale
 
 def dequantize_symmetric(q_tensor: torch.Tensor, scale: float):
     return q_tensor.to(torch.float32) * scale
