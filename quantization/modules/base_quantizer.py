@@ -3,17 +3,19 @@ from torch import nn, optim
 import torch.nn.functional as F
 
 class PerTensorQuantizer:
-    def _quantize_signed_symmetric(self,weight:torch.Tensor,bits):
+    def _quantize_signed_symmetric(self,weight:torch.Tensor,bits,scale=None):
         q_min = -2**(bits - 1) -1
         q_max = 2 ** (bits - 1) - 1
         dtype = torch.int8 if bits == 8 else torch.int32
 
         max_val = weight.abs().max()
         if max_val == 0:
-            scale = 1.0
+            if scale is None:
+                scale = 1.0
             q_weight = torch.zeros_like(weight,dtype=dtype)
         else:
-            scale = max_val / q_max
+            if scale is None:
+                scale = max_val / q_max
             q_weight = torch.round(weight / scale).clamp(q_min,q_max).to(dtype)
         return q_weight,scale
     
@@ -25,6 +27,6 @@ class PerTensorQuantizer:
         pass
 
     # Dequantization
-    def _dequantize_signed_symmetric(self,q_tensor:torch.Tensor,scale:torch.float32):
+    def _dequantize_signed_symmetric(self,q_tensor:torch.Tensor,scale):
         return q_tensor.to(torch.float32) * scale
     
