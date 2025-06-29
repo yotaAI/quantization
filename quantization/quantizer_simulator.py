@@ -18,7 +18,6 @@ def quantize_resnet(model,bits:int=8,signed:bool=True):
             setattr(model_q,name,QuantConv2d(module,bits,signed))
         elif isinstance(module,nn.Linear):
             setattr(model_q,name,QuantLinear(module,bits,signed))
-        
         else:
             quantize_resnet_submodules(module,bits,signed)
     return model_q
